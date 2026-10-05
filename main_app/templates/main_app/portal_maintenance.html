@@ -1,0 +1,20 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Portal Maintenance | Velocity Tech University</title>
+    <link rel="stylesheet" href="{% static 'dist/css/erpnext-style.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/css/branding.css' %}">
+</head>
+<body class="portal-maintenance-page">
+    <main class="portal-maintenance-card">
+        <img src="{% static 'dist/img/velocity-tech-crest.webp' %}?v=3" alt="Velocity Tech University crest" class="portal-maintenance-crest">
+        <p class="portal-maintenance-kicker">{{ role_label }} portal</p>
+        <h1 class="university-wordmark">Velocity Tech University</h1>
+        <h2>Temporarily unavailable</h2>
+        <p>The {{ role_label|lower }} portal is temporarily closed for scheduled maintenance. Please try again later.</p>
+        <form action="{% url 'user_logout' %}" method="post">{% csrf_token %}<button type="submit" class="btn btn-primary">Sign out</button></form>
+    </main>
+</body>
+</html>

@@ -1,0 +1,16 @@
+name: velocity-tech-university
+channels:
+  - conda-forge
+dependencies:
+  - python=3.13
+  - pip
+  - pip:
+      - Django>=5.2,<5.3
+      - dj-database-url>=2.3,<3.0
+      - psycopg[binary]>=3.2,<4.0
+      - python-dotenv>=1.0,<2.0
+      - gunicorn>=23.0,<24.0
+      - whitenoise>=6.8,<7.0
+      - django-storages[boto3]>=1.14,<2.0
+      - Pillow>=10.4,<13.0
+      - reportlab>=4.2,<5.0

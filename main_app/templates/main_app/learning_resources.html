@@ -1,0 +1,82 @@
+{% extends 'main_app/base.html' %}
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block content %}
+<div class="row g-3">
+    {% if can_upload %}
+    <div class="col-12 col-xl-4">
+        <section class="card card-dark h-100">
+            <div class="card-header"><h2 class="card-title h5 mb-0">Upload a resource</h2></div>
+            <div class="card-body pb-0">
+                {% if is_admin %}<p class="text-muted">Choose whether the file is for students or for teachers and Admin only. Teacher-only files are delivered through protected downloads.</p>
+                {% else %}<p class="text-muted">Choose one of your assigned subjects. Its assigned course and semester determine which students can access the upload.</p>{% endif %}
+            </div>
+            {% include "main_app/form_template.html" with form=form button_text="Upload resource" %}
+        </section>
+    </div>
+    {% endif %}
+    <div class="col-12 {% if can_upload %}col-xl-8{% endif %}">
+        <section class="card card-dark">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h2 class="card-title h5 mb-0">Available resources</h2>
+                <form method="get" class="d-flex gap-2" role="search">
+                    <label class="visually-hidden" for="resource-search">Search resources</label>
+                    <input id="resource-search" class="form-control form-control-sm" type="search" name="q" value="{{ search_query }}" placeholder="Search title, course...">
+                    <button class="btn btn-sm btn-outline-primary" type="submit">Search</button>
+                </form>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead><tr><th>Resource</th><th>Course / Semester / Subject</th><th>Audience</th><th>Uploaded</th><th>File</th>{% if is_admin %}<th>Manage</th>{% endif %}</tr></thead>
+                    <tbody>
+                    {% for item in resources %}
+                        <tr>
+                            <td><strong>{{ item.title }}</strong><div class="small text-muted">{{ item.get_resource_type_display }}{% if item.description %} · {{ item.description|truncatechars:100 }}{% endif %}</div></td>
+                            <td>{% if item.course %}{{ item.course.name }}{% else %}All courses{% endif %}{% if item.semester %}<div class="small text-muted">{{ item.semester.name }}</div>{% endif %}{% if item.subject %}<div class="small text-muted">{{ item.subject.name }}</div>{% endif %}</td>
+                            <td><span class="badge {% if item.audience == 'teachers' %}bg-warning text-dark{% else %}bg-primary{% endif %}">{{ item.get_audience_display }}</span>{% if not item.is_active %}<div><span class="badge bg-secondary mt-1">Hidden</span></div>{% endif %}</td>
+                            <td>{{ item.created_at|date:"M j, Y" }}{% if item.uploaded_by %}<div class="small text-muted">{{ item.uploaded_by.get_full_name|default:item.uploaded_by.email }}</div>{% endif %}</td>
+                            <td><a class="btn btn-sm btn-outline-primary" href="{% url 'download_learning_resource' item.pk %}"><i class="fas fa-download" aria-hidden="true"></i> Download</a></td>
+                            {% if is_admin %}<td><form method="post" onsubmit="return confirm('Remove this resource?');">{% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="resource_id" value="{{ item.pk }}"><button type="submit" class="btn btn-sm btn-outline-danger">Remove</button></form></td>{% endif %}
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="6" class="text-center text-muted py-5">No learning resources match your access or search.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if resources.has_other_pages %}
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <span class="small text-muted">Page {{ resources.number }} of {{ resources.paginator.num_pages }}</span>
+                <div class="btn-group btn-group-sm">
+                    {% if resources.has_previous %}<a class="btn btn-outline-secondary" href="?q={{ search_query|urlencode }}&page={{ resources.previous_page_number }}">Previous</a>{% endif %}
+                    {% if resources.has_next %}<a class="btn btn-outline-secondary" href="?q={{ search_query|urlencode }}&page={{ resources.next_page_number }}">Next</a>{% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}
+{% if is_teacher %}
+{% block custom_js %}
+<script>
+$(function () {
+    function updateResourceScope(resetSemester, resetSubject) {
+        var courseId = $("#id_course").val();
+        var semesterId = $("#id_semester").val();
+        $("#id_semester option").each(function () {
+            $(this).prop("hidden", !!this.value && $(this).data("course") != courseId);
+        });
+        $("#id_subject option").each(function () {
+            var match = $(this).data("course") == courseId && $(this).data("semester") == semesterId;
+            $(this).prop("hidden", !!this.value && !match);
+        });
+        if (resetSemester) { $("#id_semester").val(""); semesterId = ""; }
+        if (resetSubject || resetSemester) { $("#id_subject").val(""); }
+    }
+    $("#id_course").on("change", function () { updateResourceScope(true, true); });
+    $("#id_semester").on("change", function () { updateResourceScope(false, true); });
+    updateResourceScope(false, false);
+});
+</script>
+{% endblock %}
+{% endif %}

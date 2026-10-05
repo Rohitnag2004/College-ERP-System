@@ -1,0 +1,39 @@
+{% extends 'main_app/base.html' %}
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block content %}
+<section class="card shadow-sm"><div class="card-header"><h2 class="h5 mb-0">View and manage class attendance</h2></div><div class="card-body">
+  <p class="text-muted">Choose the course, session and subject to view a class record. Admins can correct a status or remove/add a student's attendance entry.</p>
+  <div class="row g-3 align-items-end">
+    <div class="col-12 col-md-6 col-xl-3"><label class="form-label" for="course">Course</label><select id="course" class="form-control"><option value="">Choose course</option>{% for item in courses %}<option value="{{ item.pk }}" data-duration="{{ item.duration_years }}">{{ item.name }}</option>{% endfor %}</select></div>
+    <div class="col-12 col-md-6 col-xl-3"><label class="form-label" for="session">Session</label><select id="session" class="form-control"><option value="">Choose session</option>{% for item in sessions %}<option value="{{ item.pk }}" data-duration="{{ item.duration_years }}">{{ item }}</option>{% endfor %}</select></div>
+    <div class="col-12 col-md-6 col-xl-3"><label class="form-label" for="subject">Subject</label><select id="subject" class="form-control" disabled><option value="">Choose course and session first</option></select></div>
+    <div class="col-12 col-md-6 col-xl-3"><button id="load-dates" class="btn btn-primary w-100" type="button">Find attendance</button></div>
+    <div class="col-12 col-md-6 col-xl-4" id="date-wrap" hidden><label class="form-label" for="attendance-date">Attendance date</label><select id="attendance-date" class="form-control"><option value="">Choose date</option></select></div>
+    <div class="col-12 col-md-6 col-xl-2" id="load-wrap" hidden><button id="load-roster" class="btn btn-outline-primary w-100" type="button">View roster</button></div>
+  </div>
+  <div id="attendance-message" class="alert mt-3" hidden></div><div id="roster" class="mt-3"></div>
+</div></section>
+{% endblock %}
+{% block custom_js %}<script>
+(function(){
+  const $course=document.getElementById('course'),$session=document.getElementById('session'),$subject=document.getElementById('subject'),$date=document.getElementById('attendance-date'),$message=document.getElementById('attendance-message'),$roster=document.getElementById('roster');
+  function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function notice(text,type){$message.textContent=text;$message.className='alert alert-'+type+' mt-3';$message.hidden=!text;}
+  let subjectRequest=0;
+  function filterSessions(){const duration=$course.selectedOptions[0]?.dataset.duration||'';Array.from($session.options).forEach(o=>{if(!o.value)return;o.hidden=!!duration&&o.dataset.duration!==duration;});if($session.selectedOptions[0]?.hidden)$session.value='';}
+  function loadSubjects(){const request=++subjectRequest;$subject.innerHTML='<option value="">Loading subjects…</option>';$subject.disabled=true;
+    if(!$course.value||!$session.value){$subject.innerHTML='<option value="">Choose course and session first</option>';return;}
+    $.getJSON("{% url 'get_admin_attendance_subjects' %}",{course:$course.value,session:$session.value}).done(function(rows){if(request!==subjectRequest)return;$subject.innerHTML='<option value="">Choose subject</option>'+(rows||[]).map(row=>'<option value="'+Number(row.id)+'" data-semester="'+Number(row.semester||0)+'">'+esc(row.label)+'</option>').join('');$subject.disabled=!rows||!rows.length;if(!rows||!rows.length){$subject.innerHTML='<option value="">No subjects for this course/session</option>';}}).fail(function(xhr){if(request!==subjectRequest)return;$subject.innerHTML='<option value="">Could not load subjects</option>';notice(xhr.responseJSON?.error||'Could not load subjects. Please try again.','danger');});
+  }
+  $course.addEventListener('change',function(){filterSessions();loadSubjects();});$session.addEventListener('change',loadSubjects);filterSessions();
+  $('#load-dates').on('click',function(){notice('','info');$roster.innerHTML='';$('#date-wrap,#load-wrap').prop('hidden',true);if(!$course.value||!$session.value||!$subject.value){notice('Select a course, session and subject first.','warning');return;}
+    $.post("{% url 'get_attendance' %}",{subject:$subject.value,session:$session.value}).done(function(rows){rows=typeof rows==='string'?JSON.parse(rows):rows;rows=(rows||[]).filter(row=>{let option=$subject.selectedOptions[0];return !option.dataset.semester||!row.semester||String(row.semester)===option.dataset.semester;});$date.innerHTML='<option value="">Choose date</option>'+rows.map(r=>'<option value="'+Number(r.id)+'">'+esc(r.attendance_date)+'</option>').join('');if(rows.length){$('#date-wrap,#load-wrap').prop('hidden',false);notice(rows.length+' attendance record(s) found.','success');}else notice('No attendance records found for this selection.','info');}).fail(()=>notice('Could not load attendance records. Please try again.','danger'));
+  });
+  $('#load-roster').on('click',function(){if(!$date.value)return notice('Choose an attendance date.','warning');$.post("{% url 'get_admin_attendance' %}",{attendance_date_id:$date.value,session:$session.value,subject:$subject.value}).done(function(rows){rows=typeof rows==='string'?JSON.parse(rows):rows;if(!rows.length){$roster.innerHTML='<p class="text-muted">No enrolled students match this class record.</p>';return;}
+      let html='<div class="table-responsive"><table class="table table-hover align-middle"><thead><tr><th>Student</th><th>Attendance status</th><th>Entry</th></tr></thead><tbody>';
+      rows.forEach(r=>{html+='<tr><td>'+esc(r.name)+'</td><td><select class="form-control roster-status" data-student="'+Number(r.id)+'"><option value="present" '+(r.status==='present'?'selected':'')+'>Present</option><option value="absent" '+(r.status==='absent'?'selected':'')+'>Absent</option><option value="late" '+(r.status==='late'?'selected':'')+'>Late</option><option value="excused" '+(r.status==='excused'?'selected':'')+'>Excused</option><option value="removed" '+(r.status==='removed'?'selected':'')+'>Remove attendance entry</option></select></td><td>'+(r.report_id?'Recorded':'Not recorded')+'</td></tr>';});
+      html+='</tbody></table></div><button type="button" id="save-admin-attendance" class="btn btn-primary">Save attendance changes</button>';$roster.innerHTML=html;notice('Update any statuses, including adding a missing entry or removing one, then save.','info');
+  }).fail(()=>notice('Could not load the student roster. Please try again.','danger'));});
+  $(document).on('click','#save-admin-attendance',function(){let items=Array.from(document.querySelectorAll('.roster-status')).map(el=>({id:Number(el.dataset.student),status:el.value}));const button=this;button.disabled=true;$.post("{% url 'admin_save_attendance' %}",{attendance_id:$date.value,student_ids:JSON.stringify(items)}).done(()=>notice('Attendance changes saved.','success')).fail(xhr=>notice(xhr.responseJSON?.error||'Could not save attendance changes.','danger')).always(()=>button.disabled=false);});
+})();
+</script>{% endblock %}

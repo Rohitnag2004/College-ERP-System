@@ -1,0 +1,35 @@
+{% extends 'main_app/base.html' %}
+{% load static %}
+{% block page_title %}{{page_title}}{% endblock page_title %}
+
+{% block content %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <!-- general form elements -->
+                <div class="card card-dark">
+                    <div class="card-header">
+                        <h3 class="card-title">{{page_title}}</h3>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="alert alert-info" role="status">Teacher profile details are managed by the college administrator. Contact Admin to request a correction.</div>
+                        <div class="row g-3">
+                            <div class="col-md-6"><strong>Name</strong><div>{{ request.user.get_full_name|default:"—" }}</div></div>
+                            <div class="col-md-6"><strong>Email</strong><div>{{ request.user.email }}</div></div>
+                            <div class="col-md-6"><strong>Gender</strong><div>{{ request.user.get_gender_display|default:"—" }}</div></div>
+                            <div class="col-md-6"><strong>Assigned course</strong><div>{{ staff.course|default:"Not assigned" }}</div></div>
+                            <div class="col-12"><strong>Address</strong><div>{{ request.user.address|default:"—"|linebreaksbr }}</div></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.card -->
+
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+

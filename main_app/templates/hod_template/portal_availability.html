@@ -1,0 +1,25 @@
+{% extends 'main_app/base.html' %}
+{% block page_title %}Portal Availability{% endblock %}
+{% block content %}
+<section class="card shadow-sm">
+    <div class="card-header"><h2 class="h5 mb-0">Student and teacher portal access</h2></div>
+    <div class="card-body">
+        <p class="text-muted">Temporarily close either portal during maintenance. Admin access stays available so you can turn it back on.</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" role="switch" id="student-portal-enabled" name="student_portal_enabled" {% if settings_row.student_portal_enabled %}checked{% endif %}>
+                <label class="form-check-label fw-semibold" for="student-portal-enabled">Student portal is available</label>
+                <div class="form-text">Turn this off to show students a maintenance page and block student portal pages.</div>
+            </div>
+            <div class="form-check form-switch mb-4">
+                <input class="form-check-input" type="checkbox" role="switch" id="teacher-portal-enabled" name="teacher_portal_enabled" {% if settings_row.teacher_portal_enabled %}checked{% endif %}>
+                <label class="form-check-label fw-semibold" for="teacher-portal-enabled">Teacher portal is available</label>
+                <div class="form-text">Turn this off to show teachers a maintenance page and block teacher portal pages.</div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save portal availability</button>
+        </form>
+        {% if settings_row.updated_at %}<p class="small text-muted mt-3 mb-0">Last updated {{ settings_row.updated_at|date:"M j, Y, g:i a" }}{% if settings_row.updated_by %} by {{ settings_row.updated_by.get_full_name|default:settings_row.updated_by.email }}{% endif %}.</p>{% endif %}
+    </div>
+</section>
+{% endblock %}

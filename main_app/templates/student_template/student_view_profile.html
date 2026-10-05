@@ -1,0 +1,41 @@
+{% extends 'main_app/base.html' %}
+{% load static %}
+{% block page_title %}{{page_title}}{% endblock page_title %}
+
+{% block content %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <!-- general form elements -->
+                <div class="card card-dark">
+                    <div class="card-header">
+                        <h3 class="card-title">{{page_title}}</h3>
+                    </div>
+                    {% if student.can_edit_profile %}
+                        <div class="card-body pb-0"><p class="text-muted mb-0">The administrator has allowed you to update the personal details shown here. Course, session, and account access remain managed by the college.</p></div>
+                        {% include "main_app/form_template.html" with messages=messages form=form button_text="Update Profile" %}
+                    {% else %}
+                        <div class="card-body">
+                            <div class="alert alert-info" role="status">Your profile is read-only. Contact the college administrator if a detail needs correction.</div>
+                            <div class="row g-3">
+                                <div class="col-md-6"><strong>Name</strong><div>{{ request.user.get_full_name|default:"—" }}</div></div>
+                                <div class="col-md-6"><strong>Email</strong><div>{{ request.user.email }}</div></div>
+                                <div class="col-md-6"><strong>Gender</strong><div>{{ request.user.get_gender_display|default:"—" }}</div></div>
+                                <div class="col-md-6"><strong>Course</strong><div>{{ student.course|default:"Not assigned" }}</div></div>
+                                <div class="col-md-6"><strong>Semester</strong><div>{{ student.semester|default:"Not assigned" }}</div></div>
+                                <div class="col-md-6"><strong>Academic session</strong><div>{{ student.session|default:"Not assigned" }}</div></div>
+                                <div class="col-12"><strong>Address</strong><div>{{ request.user.address|default:"—"|linebreaksbr }}</div></div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                <!-- /.card -->
+
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+

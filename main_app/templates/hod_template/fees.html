@@ -1,0 +1,48 @@
+{% extends 'main_app/base.html' %}
+{% block page_title %}Fees Management{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <p class="text-muted mb-0">Manage course and semester fee schedules.</p>
+  <a href="{% url 'admin_payment_reviews' %}" class="btn btn-outline-primary"><i class="fas fa-money-check-alt"></i> Review student payments</a>
+</div>
+<form method="get" class="card shadow-sm mb-4">
+  <div class="card-header"><h2 class="h5 mb-0">Search fee schedules</h2></div>
+  <div class="card-body"><div class="row g-3">
+    <div class="col-12 col-md-6 col-xl-4"><label class="form-label" for="fee-course-filter">Course</label><select id="fee-course-filter" name="course_id" class="form-select"><option value="">All courses</option>{% for course in courses %}<option value="{{ course.pk }}" {% if selected_course == course.pk|stringformat:'s' %}selected{% endif %}>{{ course.name }}</option>{% endfor %}</select></div>
+    <div class="col-12 col-md-6 col-xl-4"><label class="form-label" for="fee-session-filter">Session</label><select id="fee-session-filter" name="session_id" class="form-select"><option value="">All sessions</option>{% for session in sessions %}<option value="{{ session.pk }}" {% if selected_session == session.pk|stringformat:'s' %}selected{% endif %}>{{ session }}</option>{% endfor %}</select></div>
+    <div class="col-12 col-md-6 col-xl-4"><label class="form-label" for="fee-entry-filter">Entry type</label><select id="fee-entry-filter" name="entry_type" class="form-select"><option value="">Regular and lateral</option>{% for value,label in entry_type_choices %}<option value="{{ value }}" {% if selected_entry_type == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <div class="col-12 col-md-6 col-xl-4"><label class="form-label" for="fee-semester-filter">Semester</label><select id="fee-semester-filter" name="semester_id" class="form-select"><option value="">All semesters</option>{% for semester in semesters %}<option value="{{ semester.pk }}" data-course="{{ semester.course_id }}" {% if selected_semester == semester.pk|stringformat:'s' %}selected{% endif %}>{{ semester.course.name }} — {{ semester.name }}</option>{% endfor %}</select></div>
+    <div class="col-12 col-md-6 col-xl-4"><label class="form-label" for="fee-title-filter">Fee title contains</label><input id="fee-title-filter" name="title" value="{{ selected_title }}" class="form-control" placeholder="e.g. Semester 1 Tuition"></div>
+    <div class="col-12 col-md-6 col-xl-4"><label class="form-label" for="fee-search">Search course, session, semester</label><input id="fee-search" name="q" value="{{ search_query }}" type="search" class="form-control" placeholder="Enter keywords"></div>
+    <div class="col-6 col-md-3 col-xl-2"><label class="form-label" for="fee-min">Minimum amount</label><input id="fee-min" name="min_amount" value="{{ selected_min_amount }}" type="number" step="0.01" min="0" class="form-control" placeholder="₹ Min"></div>
+    <div class="col-6 col-md-3 col-xl-2"><label class="form-label" for="fee-max">Maximum amount</label><input id="fee-max" name="max_amount" value="{{ selected_max_amount }}" type="number" step="0.01" min="0" class="form-control" placeholder="₹ Max"></div>
+    <div class="col-12 col-sm-6 col-xl-3"><label class="form-label" for="fee-due-from">Due date from</label><input id="fee-due-from" name="due_from" value="{{ selected_due_from }}" type="date" class="form-control"></div>
+    <div class="col-12 col-sm-6 col-xl-3"><label class="form-label" for="fee-due-to">Due date to</label><input id="fee-due-to" name="due_to" value="{{ selected_due_to }}" type="date" class="form-control"></div>
+    <div class="col-12 col-sm-6 col-xl-3"><label class="form-label" for="fee-active-filter">Schedule status</label><select id="fee-active-filter" name="active" class="form-select"><option value="">All</option><option value="yes" {% if selected_active == 'yes' %}selected{% endif %}>Active</option><option value="no" {% if selected_active == 'no' %}selected{% endif %}>Inactive</option></select></div>
+    <div class="col-12 d-flex flex-wrap gap-2"><button class="btn btn-primary"><i class="fas fa-search"></i> Search schedules</button><a class="btn btn-outline-secondary" href="{% url 'admin_fees' %}">Clear filters</a></div>
+  </div></div>
+</form>
+{% if course_fee_total != None %}<div class="alert alert-primary d-flex flex-wrap justify-content-between align-items-center gap-2"><span><strong>{{ selected_course_obj.name }}</strong>{% if summary_session %} · Session {{ summary_session }}{% endif %} — total active course fees</span><strong class="fs-5">₹{{ course_fee_total|floatformat:2 }}</strong></div>{% endif %}
+<section class="card shadow-sm mb-4"><div class="card-header"><h2 class="h5 mb-0">Create fee item</h2></div><div class="card-body"><form method="post" class="row g-3">{% csrf_token %}<input type="hidden" name="action" value="create_fee">{% for field in form %}<div class="col-12 col-md-6">{{ field.label_tag }}{{ field }}{% if field.errors %}<div class="text-danger small">{{ field.errors|striptags }}</div>{% endif %}</div>{% endfor %}<div class="col-12"><button type="submit" class="btn btn-primary">Create fee item</button></div></form></div></section>
+<section class="card shadow-sm"><div class="card-header"><h2 class="h5 mb-0">Course and semester fee schedule</h2></div><div class="card-body"><div class="table-responsive"><table class="table align-middle"><thead><tr><th>Fee item / entry</th><th>Course / Semester</th><th>Session</th><th>Amount</th><th>Due date</th><th>Active</th><th></th></tr></thead><tbody>
+{% for fee in fee_structures %}<tr><td><form id="fee-{{ fee.pk }}" method="post">{% csrf_token %}<input type="hidden" name="action" value="update_fee"><input type="hidden" name="fee_id" value="{{ fee.pk }}">{% for key,value in filters.items %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}</form>{{ fee.title }}<br><small class="text-muted">{{ fee.get_entry_type_display }}</small></td><td>{{ fee.course.name }}<br><small>{{ fee.semester.name|default:"—" }}</small></td><td>{{ fee.session|default:"—" }}</td><td><div class="input-group input-group-sm"><span class="input-group-text">₹</span><input form="fee-{{ fee.pk }}" class="form-control" name="amount" type="number" step="0.01" min="0" value="{{ fee.amount }}" required></div></td><td><input form="fee-{{ fee.pk }}" class="form-control form-control-sm" name="due_date" type="date" value="{{ fee.due_date|date:'Y-m-d' }}" {% if fee.session_id and fee.semester_id %}readonly{% else %}required{% endif %}></td><td><input form="fee-{{ fee.pk }}" type="checkbox" name="is_active" {% if fee.is_active %}checked{% endif %}></td><td><button form="fee-{{ fee.pk }}" class="btn btn-sm btn-primary">Save</button></td></tr>{% empty %}<tr><td colspan="7" class="text-center text-muted">No matching fee items found.</td></tr>{% endfor %}
+</tbody></table></div>{% if fee_structures.has_other_pages %}<nav class="d-flex justify-content-between mt-3" aria-label="Fee schedule pages"><span>Page {{ fee_structures.number }} of {{ fee_structures.paginator.num_pages }}</span><div>{% if fee_structures.has_previous %}<a class="btn btn-sm btn-outline-secondary" href="?{% for key,value in filters.items %}{{ key }}={{ value|urlencode }}&amp;{% endfor %}page={{ fee_structures.previous_page_number }}">Previous</a>{% endif %} {% if fee_structures.has_next %}<a class="btn btn-sm btn-outline-secondary" href="?{% for key,value in filters.items %}{{ key }}={{ value|urlencode }}&amp;{% endfor %}page={{ fee_structures.next_page_number }}">Next</a>{% endif %}</div></nav>{% endif %}</div></section>
+<script>
+(() => {
+  const course = document.getElementById('fee-course-filter');
+  const semester = document.getElementById('fee-semester-filter');
+  if (!course || !semester) return;
+  const options = [...semester.options];
+  const filterSemesters = () => {
+    const courseId = course.value;
+    options.forEach((option, index) => {
+      if (!index || !option.value) return;
+      option.hidden = Boolean(courseId && option.dataset.course !== courseId);
+      if (option.hidden && option.selected) semester.value = '';
+    });
+  };
+  course.addEventListener('change', filterSemesters);
+  filterSemesters();
+})();
+</script>
+{% endblock %}

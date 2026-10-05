@@ -1,0 +1,57 @@
+{% extends 'main_app/base.html' %}
+{% block page_title %}Fee Payment Reviews{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"><p class="text-muted mb-0">Review student payments, update their status, and record cash received at the college.</p><a href="{% url 'admin_fees' %}" class="btn btn-outline-primary"><i class="fas fa-receipt"></i> Manage fee schedules</a></div>
+
+<section class="card shadow-sm mb-4">
+  <div class="card-header"><h2 class="h5 mb-0">Record in-person cash payment</h2></div>
+  <div class="card-body">
+    <p class="text-muted">Select a student, course, and session to see the fee status for each semester. Update a status or record cash received.</p>
+    <form method="get" class="row g-3 align-items-end mb-3">
+      {% if search_query %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}{% if selected_status %}<input type="hidden" name="status" value="{{ selected_status }}">{% endif %}
+      <div class="col-12 col-md-6 col-xl-4"><label class="form-label" for="cash-student">Student name</label><input id="cash-student" name="student_lookup" list="cash-student-options" class="form-control" value="{{ student_lookup }}" placeholder="Type or choose a student" autocomplete="off" required><datalist id="cash-student-options">{% for student in students %}<option value="{{ student.admin.get_full_name|default:student.admin.email }} — {{ student.admin.email }}" data-course="{{ student.course_id }}" data-session="{{ student.session_id }}"></option>{% endfor %}</datalist></div>
+      <div class="col-12 col-md-6 col-xl-3"><label class="form-label" for="cash-course">Course <span class="text-danger">*</span></label><select id="cash-course" name="cash_course" class="form-select" required><option value="">Choose course</option>{% for course in courses %}<option value="{{ course.pk }}" {% if selected_cash_course == course.pk|stringformat:'s' %}selected{% endif %}>{{ course.name }}</option>{% endfor %}</select></div>
+      <div class="col-12 col-md-6 col-xl-3"><label class="form-label" for="cash-session">Session <span class="text-danger">*</span></label><select id="cash-session" name="cash_session" class="form-select" required><option value="">Choose session</option>{% for session in sessions %}<option value="{{ session.pk }}" {% if selected_cash_session == session.pk|stringformat:'s' %}selected{% endif %}>{{ session }}</option>{% endfor %}</select></div>
+      <div class="col-12 col-md-auto"><button class="btn btn-outline-primary">Show fee statuses</button></div>
+    </form>
+    {% if cash_student and cash_course and cash_session %}
+      {% if cash_student.course_id != cash_course.pk or cash_student.session_id != cash_session.pk %}<div class="alert alert-warning">Selected course and session must match the student's enrollment.</div>
+      {% elif not cashable_payments %}<div class="alert alert-warning">No active fee schedule was found for this student, course, and session.</div>
+      {% else %}
+        <div class="alert alert-light border py-2 mb-3"><strong>{{ cash_student.admin.get_full_name|default:cash_student.admin.email }}</strong> · {{ cash_course.name }} · Session {{ cash_session }}</div>
+        <div class="table-responsive"><table class="table table-bordered align-middle"><thead><tr><th>Semester / Fee</th><th>Amount</th><th>Due date</th><th>Current status</th><th>Update / cash received</th><th>Receipt</th></tr></thead><tbody>
+        {% for payment in cashable_payments %}<tr><td>{{ payment.fee.semester.name|default:payment.fee.title }}<br><small>{{ payment.fee.title }}</small></td><td>₹{{ payment.fee.amount|floatformat:2 }}</td><td>{{ payment.fee.due_date|date:'M j, Y' }}</td><td>{{ payment.get_status_display }}{% if payment.payment_reference %}<br><small>{{ payment.payment_reference }}</small>{% endif %}</td><td><form method="post" class="d-flex flex-wrap gap-1 align-items-center">{% csrf_token %}<input type="hidden" name="payment_id" value="{{ payment.pk }}"><input type="hidden" name="cash_student" value="{{ cash_student.pk }}"><input type="hidden" name="cash_course" value="{{ cash_course.pk }}"><input type="hidden" name="cash_session" value="{{ cash_session.pk }}"><input type="hidden" name="q" value="{{ search_query }}"><input type="hidden" name="status" value="{{ selected_status }}"><select name="new_status" class="form-select form-select-sm" aria-label="Set payment status">{% for value,label in status_choices %}{% if value != 'all' %}<option value="{{ value }}" {% if payment.status == value %}selected{% endif %}>{{ label }}</option>{% endif %}{% endfor %}</select><input name="admin_note" class="form-control form-control-sm" placeholder="Optional note" aria-label="Admin note"><input name="receipt_reference" class="form-control form-control-sm" maxlength="110" placeholder="Receipt no." aria-label="Cash receipt number"><button name="action" value="update_payment_status" class="btn btn-primary btn-sm">Save status</button>{% if payment.status != 'paid' %}<button name="action" value="record_cash_payment" class="btn btn-success btn-sm">Cash received</button>{% endif %}</form></td><td>{% if payment.status == 'paid' %}<a class="btn btn-sm btn-outline-primary" href="{% url 'fee_payment_receipt' payment.pk %}">Download</a><a class="btn btn-sm btn-outline-secondary mt-1" target="_blank" href="{% url 'fee_payment_receipt' payment.pk %}?print=1">Print</a>{% else %}—{% endif %}</td></tr>{% endfor %}
+        </tbody></table></div>
+      {% endif %}
+    {% elif student_lookup %}<div class="alert alert-info">Choose the student from the dropdown and confirm their course and session to load payment statuses.</div>{% endif %}
+  </div>
+</section>
+
+<form method="get" class="card card-body shadow-sm mb-4">
+  {% if student_lookup %}<input type="hidden" name="student_lookup" value="{{ student_lookup }}">{% endif %}{% if selected_cash_course %}<input type="hidden" name="cash_course" value="{{ selected_cash_course }}">{% endif %}{% if selected_cash_session %}<input type="hidden" name="cash_session" value="{{ selected_cash_session }}">{% endif %}
+  <label for="payment-search" class="form-label">Search and filter payment records</label>
+  <div class="row g-2"><div class="col-12 col-lg"><input id="payment-search" name="q" value="{{ search_query }}" type="search" class="form-control" placeholder="Student, email, course, fee, or reference"></div><div class="col-12 col-sm-6 col-lg-3"><select name="status" class="form-select" aria-label="Filter payment status">{% for value,label in status_choices %}<option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div><div class="col-12 col-sm-auto"><button class="btn btn-primary">Search</button> <a href="{% url 'admin_payment_reviews' %}" class="btn btn-outline-secondary">Clear</a></div></div>
+</form>
+
+<section class="card shadow-sm"><div class="card-header"><h2 class="h5 mb-0">{% if selected_status == 'pending' %}Awaiting payment verification{% elif selected_status == 'all' %}Payment records{% else %}{{ selected_status|capfirst }} payments{% endif %}</h2></div><div class="card-body"><div class="table-responsive"><table class="table align-middle"><thead><tr><th>Student</th><th>Fee</th><th>Amount</th><th>Reference / method</th><th>Submitted</th><th>Status</th><th>Receipt / update</th></tr></thead><tbody>
+{% for item in payments %}<tr><td>{{ item.student.admin.get_full_name|default:item.student.admin.email }}<br><small>{{ item.student.admin.email }}</small></td><td>{{ item.fee.title }}<br><small>{{ item.fee.course.name }}{% if item.fee.semester %} / {{ item.fee.semester.name }}{% endif %}</small></td><td>₹{{ item.fee.amount|floatformat:2 }}</td><td>{{ item.payment_reference|default:"—" }}{% if item.payment_reference|slice:":5" == "CASH-" %}<br><span class="badge bg-success">Cash</span>{% endif %}</td><td>{{ item.submitted_at|default:"—" }}</td><td>{{ item.get_status_display }}</td><td><form method="post" class="d-flex flex-wrap gap-1 align-items-center">{% csrf_token %}<input type="hidden" name="payment_id" value="{{ item.pk }}"><input type="hidden" name="q" value="{{ search_query }}"><input type="hidden" name="status" value="{{ selected_status }}"><select name="new_status" class="form-select form-select-sm" aria-label="Set payment status">{% for value,label in status_choices %}{% if value != 'all' %}<option value="{{ value }}" {% if item.status == value %}selected{% endif %}>{{ label }}</option>{% endif %}{% endfor %}</select><button name="action" value="update_payment_status" class="btn btn-primary btn-sm">Save</button>{% if item.status == 'paid' %}<a class="btn btn-outline-primary btn-sm" href="{% url 'fee_payment_receipt' item.pk %}">Receipt PDF</a><a class="btn btn-outline-secondary btn-sm" target="_blank" href="{% url 'fee_payment_receipt' item.pk %}?print=1">Print</a>{% endif %}</form></td></tr>{% empty %}<tr><td colspan="7" class="text-center text-muted py-4">No payment records match this search and status.</td></tr>{% endfor %}
+</tbody></table></div>{% if payments.has_other_pages %}<nav class="d-flex justify-content-between mt-3" aria-label="Payment review pages"><span>Page {{ payments.number }} of {{ payments.paginator.num_pages }}</span><div>{% if payments.has_previous %}<a class="btn btn-sm btn-outline-secondary" href="?q={{ search_query|urlencode }}&amp;status={{ selected_status|urlencode }}&amp;page={{ payments.previous_page_number }}">Previous</a>{% endif %} {% if payments.has_next %}<a class="btn btn-sm btn-outline-secondary" href="?q={{ search_query|urlencode }}&amp;status={{ selected_status|urlencode }}&amp;page={{ payments.next_page_number }}">Next</a>{% endif %}</div></nav>{% endif %}</div></section>
+
+<script>
+(() => {
+  const input = document.getElementById('cash-student');
+  const course = document.getElementById('cash-course');
+  const session = document.getElementById('cash-session');
+  const list = document.getElementById('cash-student-options');
+  if (!input || !course || !session || !list) return;
+  const syncEnrollment = () => {
+    const option = [...list.options].find(item => item.value === input.value);
+    if (!option) return;
+    if (option.dataset.course) course.value = option.dataset.course;
+    if (option.dataset.session) session.value = option.dataset.session;
+  };
+  input.addEventListener('input', syncEnrollment);
+  input.addEventListener('change', syncEnrollment);
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'main_app/base.html' %}
+{% block page_title %}Library Books{% endblock page_title %}
+{% block content %}
+<div class="container-fluid">
+    <div class="card card-outline card-primary mb-4">
+        <div class="card-header"><h3 class="card-title">{% if editing_book %}Edit book{% else %}Add a book{% endif %}</h3></div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="card-body">
+                {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+                <div class="row">
+                    {% for field in form %}
+                    <div class="form-group col-md-6">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% for error in field.errors %}<small class="text-danger d-block">{{ error }}</small>{% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card-footer d-flex gap-2">
+                <button type="submit" class="btn btn-primary">{% if editing_book %}Save changes{% else %}Add book{% endif %}</button>
+                {% if editing_book %}<a href="{% url 'manage_books' %}" class="btn btn-outline-secondary">Cancel edit</a>{% endif %}
+            </div>
+        </form>
+    </div>
+
+    <div class="card card-outline card-primary">
+        <div class="card-header"><h3 class="card-title">Library catalogue</h3></div>
+        <div class="card-body table-responsive">
+            <table class="table table-hover table-striped mb-0">
+                <thead><tr><th>Book</th><th>Author</th><th>ISBN</th><th>Category</th><th>Action</th></tr></thead>
+                <tbody>
+                    {% for book in books %}
+                    <tr>
+                        <td>{{ book.name }}</td><td>{{ book.author }}</td><td>{{ book.isbn }}</td><td>{{ book.category }}</td>
+                        <td><a class="btn btn-sm btn-outline-primary" href="{% url 'edit_book' book.pk %}">Edit</a></td>
+                    </tr>
+                    {% empty %}<tr><td colspan="5" class="text-center text-muted py-4">No books have been added yet.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}

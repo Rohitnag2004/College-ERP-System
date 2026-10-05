@@ -1,0 +1,58 @@
+{% extends 'main_app/base.html' %}
+{% block page_title %}Grade Cards{% endblock page_title %}
+{% block content %}
+<div class="container-fluid">
+    {% if can_manage %}
+    <div class="card card-outline card-primary mb-4">
+        <div class="card-header"><h3 class="card-title">{% if editing_card %}Edit grade card{% else %}Upload grade card{% endif %}</h3></div>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% if editing_card %}<input type="hidden" name="grade_card_id" value="{{ editing_card.pk }}">{% endif %}
+            <div class="card-body">
+                {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+                {% if editing_card and editing_card.file %}<p class="text-muted">Current file: <a href="{% url 'download_grade_card' editing_card.pk %}">Download current grade card</a>. Upload a replacement only if you need to change it.</p>{% endif %}
+                <div class="row">
+                    {% for field in form %}
+                    <div class="form-group col-md-6">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% for error in field.errors %}<small class="text-danger d-block">{{ error }}</small>{% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if request.user.user_type == '2' %}<small class="text-muted">You can only manage grade cards for students in semesters assigned to you.</small>{% endif %}
+            </div>
+            <div class="card-footer d-flex gap-2">
+                <button type="submit" class="btn btn-primary">{% if editing_card %}Save changes{% else %}Upload grade card{% endif %}</button>
+                {% if editing_card %}<a href="{% url 'grade_cards' %}" class="btn btn-outline-secondary">Cancel edit</a>{% endif %}
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    <div class="card card-outline card-primary">
+        <div class="card-header"><h3 class="card-title">{% if is_student %}My grade cards{% else %}Grade card records{% endif %}</h3></div>
+        <div class="card-body table-responsive">
+            <table class="table table-hover table-striped mb-0">
+                <thead><tr>{% if not is_student %}<th>Student</th>{% endif %}<th>Grade card</th><th>Course</th><th>Session</th><th>Semester</th><th>Last updated</th><th>Actions</th></tr></thead>
+                <tbody>
+                    {% for card in grade_cards %}
+                    <tr>
+                        {% if not is_student %}<td>{{ card.student.admin.get_full_name }}<br><small class="text-muted">{{ card.student.admin.email }}</small></td>{% endif %}
+                        <td>{{ card.title }}</td>
+                        <td>{{ card.student.course|default:"—" }}</td>
+                        <td>{{ card.student.session|default:"—" }}</td>
+                        <td>{{ card.semester.name }}</td>
+                        <td>{{ card.updated_at|date:"d M Y, h:i A" }}</td>
+                        <td class="text-nowrap">
+                            <a class="btn btn-sm btn-outline-primary" href="{% url 'download_grade_card' card.pk %}">Download</a>
+                            {% if can_manage %}<a class="btn btn-sm btn-outline-secondary" href="{% url 'grade_cards' %}?edit={{ card.pk }}">Edit</a>{% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}<tr><td colspan="7" class="text-center text-muted py-4">{% if is_student %}No grade cards are available yet.{% else %}No grade cards have been uploaded yet.{% endif %}</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}

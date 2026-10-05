@@ -1,0 +1,9 @@
+{% extends 'main_app/base.html' %}
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block content %}
+<section class="card shadow-sm mx-auto" style="max-width:680px"><div class="card-header"><h2 class="h5 mb-0">Demo fee payment</h2></div><div class="card-body">
+<div class="alert alert-warning"><strong>Simulation only — no money will be charged.</strong><br>This screen does not contact a payment gateway and must not be used as proof of a real payment. Your submission will be sent to Admin for manual approval.</div>
+<dl class="row"><dt class="col-sm-4">Course</dt><dd class="col-sm-8">{{ payment.fee.course.name }}</dd><dt class="col-sm-4">Semester</dt><dd class="col-sm-8">{{ payment.fee.semester.name|default:payment.fee.title }}</dd><dt class="col-sm-4">Amount to simulate</dt><dd class="col-sm-8 fw-bold">₹{{ payment.fee.amount|floatformat:2 }}</dd></dl>
+<form method="post">{% csrf_token %}<fieldset class="mb-3"><legend class="form-label">Choose a demo method</legend><div class="d-flex flex-wrap gap-3"><label class="form-check"><input class="form-check-input" type="radio" name="demo_method" value="UPI" checked> Demo UPI</label><label class="form-check"><input class="form-check-input" type="radio" name="demo_method" value="CARD"> Demo card</label><label class="form-check"><input class="form-check-input" type="radio" name="demo_method" value="NETBANKING"> Demo net banking</label></div></fieldset><div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="confirm_demo" value="yes" id="confirm-demo" required><label class="form-check-label" for="confirm-demo">I understand this is a simulated payment and no money is transferred.</label></div><button class="btn btn-success" type="submit">Complete simulated payment</button> <a class="btn btn-outline-secondary" href="{% url 'student_fees' %}">Cancel</a></form>
+</div></section>
+{% endblock %}

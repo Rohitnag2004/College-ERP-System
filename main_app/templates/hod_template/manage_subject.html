@@ -1,0 +1,29 @@
+{% extends 'main_app/base.html' %}
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block content %}
+<section class="card shadow-sm mb-3">
+  <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2"><h2 class="h5 mb-0">Find subjects</h2><a class="btn btn-primary btn-sm" href="{% url 'add_subject' %}">Define a subject</a></div>
+  <div class="card-body">
+    <form method="get" class="row g-3 align-items-end">
+      <div class="col-12 col-md-6 col-xl-3"><label class="form-label" for="filter-course">Course</label><select class="form-control" id="filter-course" name="course"><option value="">All courses</option>{% for item in courses %}<option value="{{ item.pk }}" {% if selected_course == item.pk|stringformat:'s' %}selected{% endif %}>{{ item.name }}</option>{% endfor %}</select></div>
+      <div class="col-12 col-md-6 col-xl-3"><label class="form-label" for="filter-session">Session</label><select class="form-control" id="filter-session" name="session"><option value="">All sessions</option>{% for item in sessions %}<option value="{{ item.pk }}" {% if selected_session == item.pk|stringformat:'s' %}selected{% endif %}>{{ item }}</option>{% endfor %}</select><small class="text-muted">Shows subjects for courses with students in this session.</small></div>
+      <div class="col-12 col-md-6 col-xl-3"><label class="form-label" for="filter-semester">Semester</label><select class="form-control" id="filter-semester" name="semester"><option value="">All semesters</option>{% for item in semesters %}<option value="{{ item.pk }}" data-course="{{ item.course_id }}" {% if selected_semester == item.pk|stringformat:'s' %}selected{% endif %}>{{ item.course.name }} · {{ item.name }}</option>{% endfor %}</select></div>
+      <div class="col-12 col-md-6 col-xl-3"><label class="form-label" for="filter-subject">Subject</label><input class="form-control" id="filter-subject" name="subject" value="{{ selected_subject }}" type="search" placeholder="Subject name or code"></div>
+      <div class="col-12 d-flex gap-2"><button class="btn btn-primary">Search</button><a class="btn btn-outline-secondary" href="{% url 'manage_subject' %}">Clear filters</a></div>
+    </form>
+  </div>
+</section>
+<section class="card shadow-sm">
+  <div class="card-header"><h2 class="h5 mb-0">Subjects and teacher assignments</h2><small class="text-muted">Changes saved by an administrator take effect immediately.</small></div>
+  <div class="card-body"><div class="table-responsive"><table class="table table-hover align-middle"><thead><tr><th>Course</th><th>Semester</th><th>Subject / code</th><th>Assigned teacher</th><th>Actions</th></tr></thead><tbody>
+  {% for subject in subjects %}<tr>
+    <td>{{ subject.course.name }}</td><td>{{ subject.semester.name|default:"Not set" }}</td><td>{{ subject.name }}{% if subject.code %}<div class="small text-muted">{{ subject.code }}{% if subject.subject_type %} · {{ subject.subject_type }}{% endif %}</div>{% endif %}</td>
+    <td><form method="post" action="{% url 'manage_subject' %}" class="d-grid gap-2">{% csrf_token %}<input type="hidden" name="action" value="assign_teacher"><input type="hidden" name="subject_id" value="{{ subject.pk }}"><select class="form-control" name="staff_id" aria-label="Teacher for {{ subject.name }}"><option value="">Unassigned</option>{% for teacher in teachers %}<option value="{{ teacher.pk }}" {% if subject.staff_id == teacher.pk %}selected{% endif %}>{{ teacher.admin.get_full_name|default:teacher.admin.email }}</option>{% endfor %}</select>{% if subject.co_teachers.all %}<small class="text-muted">Also assigned: {% for teacher in subject.co_teachers.all %}{{ teacher.admin.get_full_name|default:teacher.admin.email }}{% if not forloop.last %}, {% endif %}{% endfor %}</small>{% endif %}<button class="btn btn-primary btn-sm" type="submit">Save</button></form></td>
+    <td class="text-nowrap"><a href="{% url 'edit_subject' subject.pk %}" class="btn btn-outline-primary btn-sm">Edit</a> <a href="{% url 'delete_subject' subject.pk %}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Delete this subject and its related records?')">Delete</a></td>
+  </tr>{% empty %}<tr><td colspan="5" class="text-center text-muted py-4">No subjects match these filters.</td></tr>{% endfor %}
+  </tbody></table></div></div>
+</section>
+{% endblock %}
+{% block custom_js %}<script>
+(function(){var course=document.getElementById('filter-course'),semester=document.getElementById('filter-semester');function filterSemesters(){var selected=course.value;Array.from(semester.options).forEach(function(option){if(!option.value)return;option.hidden=!!selected&&option.dataset.course!==selected;if(option.hidden&&option.selected)semester.value='';});}course.addEventListener('change',filterSemesters);filterSemesters();})();
+</script>{% endblock %}

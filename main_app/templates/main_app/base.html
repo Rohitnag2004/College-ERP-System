@@ -1,0 +1,112 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{% block title %}Velocity Tech University{% endblock title %}</title>
+    <link rel="icon" type="image/webp" href="{% static 'dist/img/velocity-tech-crest.webp' %}?v=3">
+    <link rel="stylesheet" href="{% static 'dist/css/branding.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/css/erpnext-style.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'dist/css/portal-interactions.css' %}">
+    {% block custom_css %}{% endblock custom_css %}
+</head>
+<body data-session-activity-url="{% url 'session_activity' %}" data-login-url="{% url 'login_page' %}" data-idle-timeout-seconds="{{ request.session.get_expiry_age }}">
+    <nav class="erpnext-navbar">
+        <div class="navbar-left">
+            <button class="navbar-toggle" type="button" onclick="toggleSidebar()" aria-label="Toggle navigation"><i class="fas fa-bars"></i></button>
+            <a href="{% if user.user_type == '1' %}{% url 'admin_home' %}{% elif user.user_type == '2' %}{% url 'staff_home' %}{% else %}{% url 'student_home' %}{% endif %}" class="navbar-brand">Velocity Tech University <span class="navbar-role">· {% if user.user_type == '1' %}Admin{% elif user.user_type == '2' %}Teacher{% else %}Student{% endif %}</span></a>
+        </div>
+        <div class="navbar-user">
+            <label class="theme-toggle" for="theme-switch" aria-label="Toggle dark mode">
+                <input type="checkbox" id="theme-switch"><span class="slider"><i class="fas fa-sun icon-light"></i><i class="fas fa-moon icon-dark"></i></span>
+            </label>
+            <form action="{% url 'user_logout' %}" method="post" class="m-0">{% csrf_token %}<button type="submit" class="btn btn-outline-primary btn-sm logout-btn"><i class="fas fa-sign-out-alt"></i><span class="logout-text">Sign out</span></button></form>
+        </div>
+    </nav>
+    <aside class="erpnext-sidebar">{% include "main_app/erpnext_sidebar.html" %}</aside>
+    <main class="erpnext-main" id="main-content">
+        <div class="page-header">
+            <h1 class="page-title">{% block page_title %}Dashboard{% endblock page_title %}</h1>
+            {% if page_subtitle %}<p class="page-subtitle">{{ page_subtitle }}</p>{% endif %}
+            <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% if user.user_type == '1' %}{% url 'admin_home' %}{% elif user.user_type == '2' %}{% url 'staff_home' %}{% else %}{% url 'student_home' %}{% endif %}"><i class="fas fa-home"></i> Home</a></li>{% block breadcrumb %}{% endblock breadcrumb %}</ol></nav>
+        </div>
+        {% if messages %}<div class="messages-container">{% for message in messages %}<div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}</div>{% endif %}
+        <div class="content-area fade-in">{% block content %}{% endblock content %}</div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'dist/js/portal-interactions.js' %}?v=idle-300-20261006" defer></script>
+    <script>
+        function readCookie(name) {
+            return document.cookie.split(';').map(value => value.trim()).find(value => value.startsWith(name + '='))?.slice(name.length + 1) || '';
+        }
+        $.ajaxSetup({ beforeSend: function (xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type || 'GET') && !/^https?:\/\//i.test(settings.url || '')) xhr.setRequestHeader('X-CSRFToken', readCookie('csrftoken'));
+        }});
+        let isSidebarOpen = false;
+        function applySidebarState() {
+            const mobile = window.innerWidth <= 768;
+            document.body.classList.toggle('sidebar-open', mobile && isSidebarOpen);
+            document.body.classList.toggle('sidebar-collapsed', mobile ? !isSidebarOpen : isSidebarOpen);
+        }
+        function toggleSidebar() {
+            isSidebarOpen = !isSidebarOpen;
+            try { localStorage.setItem('sidebarOpen', String(isSidebarOpen)); } catch (error) {}
+            applySidebarState();
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            try { isSidebarOpen = localStorage.getItem('sidebarOpen') === 'true'; } catch (error) {}
+            applySidebarState();
+            const themeToggle = document.getElementById('theme-switch');
+            function setTheme(dark) {
+                document.body.classList.toggle('dark-mode', dark);
+                if (themeToggle) themeToggle.checked = dark;
+                try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (error) {}
+                const textColor = dark ? '#e0e0e0' : '#262626';
+                const gridColor = dark ? '#404040' : '#f1f3f4';
+                (window.chartInstances || []).forEach(function (chart) {
+                    if (!chart || !chart.options) return;
+                    const legend = chart.options.plugins && chart.options.plugins.legend;
+                    if (legend && legend.labels) legend.labels.color = textColor;
+                    Object.values(chart.options.scales || {}).forEach(function (scale) {
+                        if (scale.grid) scale.grid.color = gridColor;
+                        if (scale.ticks) scale.ticks.color = textColor;
+                    });
+                    chart.update(0);
+                });
+            }
+            let savedTheme = 'light';
+            try { savedTheme = localStorage.getItem('theme') || 'light'; } catch (error) {}
+            setTheme(savedTheme === 'dark');
+            if (themeToggle) themeToggle.addEventListener('change', function () { setTheme(this.checked); });
+
+            document.querySelectorAll('.nav-item.has-submenu > .nav-link').forEach(function (link) {
+                link.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const item = this.parentElement;
+                    const shouldOpen = !item.classList.contains('open');
+                    document.querySelectorAll('.nav-item.has-submenu.open').forEach(function (openItem) {
+                        if (openItem !== item) openItem.classList.remove('open');
+                    });
+                    item.classList.toggle('open', shouldOpen);
+                });
+            });
+            document.querySelectorAll('.erpnext-sidebar a[href]:not([href="#"]):not([href="javascript:void(0)"])').forEach(function (link) {
+                link.addEventListener('click', function () {
+                    if (window.innerWidth <= 768) {
+                        isSidebarOpen = false;
+                        applySidebarState();
+                        try { localStorage.setItem('sidebarOpen', 'false'); } catch (error) {}
+                    }
+                });
+            });
+        });
+        window.addEventListener('resize', applySidebarState, { passive: true });
+    </script>
+    {% block custom_js %}{% endblock custom_js %}
+</body>
+</html>

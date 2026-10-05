@@ -1,0 +1,12 @@
+{% extends 'main_app/base.html' %}
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block content %}
+<section class="card shadow-sm mb-4"><div class="card-header"><h2 class="h5 mb-0">Today's Attendance · {{ record.work_date|default:"Today" }}</h2></div><div class="card-body">
+{% if not record or not record.checked_in_at %}
+<form method="post" action="{% url 'mark_work_attendance' %}" class="row g-2 align-items-end">{% csrf_token %}<input type="hidden" name="action" value="check_in"><div class="col-md-8"><label class="form-label">Optional note</label><input class="form-control" name="note" maxlength="240" placeholder="On campus / remote"></div><div class="col-md-4"><button class="btn btn-success w-100" type="submit">Check in now</button></div></form>
+{% else %}
+<p class="mb-3">Checked in at <strong>{{ record.checked_in_at|date:"H:i:s" }}</strong> (server time).</p>
+{% if not record.checked_out_at %}<form method="post" action="{% url 'mark_work_attendance' %}">{% csrf_token %}<input type="hidden" name="action" value="check_out"><button class="btn btn-primary" type="submit">Check out now</button></form>{% else %}<p class="mb-0">Checked out at <strong>{{ record.checked_out_at|date:"H:i:s" }}</strong>.</p>{% endif %}
+{% endif %}</div></section>
+<section class="card shadow-sm"><div class="card-header"><h2 class="h5 mb-0">Recent history</h2></div><div class="card-body"><div class="table-responsive"><table class="table align-middle"><thead><tr><th>Date</th><th>Check in</th><th>Check out</th><th>Note</th></tr></thead><tbody>{% for row in history %}<tr><td>{{ row.work_date }}</td><td>{{ row.checked_in_at|date:"H:i:s"|default:"—" }}</td><td>{{ row.checked_out_at|date:"H:i:s"|default:"—" }}</td><td>{{ row.note|default:"—" }}</td></tr>{% empty %}<tr><td colspan="4" class="text-center text-muted">No attendance records yet.</td></tr>{% endfor %}</tbody></table></div></div></section>
+{% endblock %}

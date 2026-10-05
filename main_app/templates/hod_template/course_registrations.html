@@ -1,0 +1,25 @@
+{% extends 'main_app/base.html' %}
+
+{% block page_title %}Course Registration Requests{% endblock %}
+{% block content %}
+<section class="card shadow-sm">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <h2 class="h5 mb-0">Registration history</h2>
+        <div class="btn-group btn-group-sm" role="group" aria-label="Filter registrations">
+            <a class="btn {% if status_filter == 'pending' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?status=pending&amp;q={{ search_query|urlencode }}">Pending</a>
+            <a class="btn {% if status_filter == 'approved' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?status=approved&amp;q={{ search_query|urlencode }}">Approved</a>
+            <a class="btn {% if status_filter == 'rejected' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?status=rejected&amp;q={{ search_query|urlencode }}">Rejected</a>
+            <a class="btn {% if status_filter == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?status=all&amp;q={{ search_query|urlencode }}">All</a>
+        </div>
+    </div>
+    <div class="card-body"><form method="get" class="mb-3"><input type="hidden" name="status" value="{{ status_filter }}"><div class="input-group"><input type="search" name="q" value="{{ search_query }}" class="form-control" placeholder="Search student, email, or course"><button class="btn btn-primary">Search</button></div></form><div class="table-responsive"><table class="table align-middle">
+        <thead><tr><th>Student</th><th>Course</th><th>Session</th><th>Submitted</th><th>Status</th><th>Review</th></tr></thead>
+        <tbody>{% for item in registrations %}<tr>
+            <td>{{ item.student.admin.get_full_name }}<br><small class="text-muted">{{ item.student.admin.email }}</small></td>
+            <td>{{ item.course.name }}</td><td>{{ item.session|default:"—" }}</td><td>{{ item.submitted_at|date:"M j, Y H:i" }}</td>
+            <td><span class="badge {% if item.status == 'approved' %}bg-success{% elif item.status == 'rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %}">{{ item.get_status_display }}</span>{% if item.reviewed_by %}<br><small class="text-muted">by {{ item.reviewed_by.get_full_name|default:item.reviewed_by.email }}</small>{% endif %}</td>
+            <td>{% if item.status == 'pending' %}<form method="post" action="{% url 'review_course_registration' item.pk %}">{% csrf_token %}<input class="form-control form-control-sm mb-2" name="admin_note" maxlength="500" placeholder="Optional note"><div class="d-flex gap-1"><button class="btn btn-success btn-sm" name="decision" value="approved">Approve</button><button class="btn btn-outline-danger btn-sm" name="decision" value="rejected">Reject</button></div></form>{% else %}{{ item.admin_note|default:"—" }}{% endif %}</td>
+        </tr>{% empty %}<tr><td colspan="6" class="text-center text-muted py-4">No registrations found for this filter.</td></tr>{% endfor %}</tbody>
+    </table></div>{% if registrations.has_other_pages %}<nav class="d-flex justify-content-between mt-3"><span>Page {{ registrations.number }} of {{ registrations.paginator.num_pages }}</span><div>{% if registrations.has_previous %}<a class="btn btn-sm btn-outline-secondary" href="?status={{ status_filter }}&amp;q={{ search_query|urlencode }}&amp;page={{ registrations.previous_page_number }}">Previous</a>{% endif %} {% if registrations.has_next %}<a class="btn btn-sm btn-outline-secondary" href="?status={{ status_filter }}&amp;q={{ search_query|urlencode }}&amp;page={{ registrations.next_page_number }}">Next</a>{% endif %}</div></nav>{% endif %}</div>
+</section>
+{% endblock %}

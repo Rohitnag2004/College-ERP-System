@@ -1,0 +1,35 @@
+{% extends 'main_app/base.html' %}
+{% block page_title %}Payment Department{% endblock %}
+{% block content %}
+<div class="alert alert-info" role="status"><strong>Demo payment interface.</strong> This records an internal salary approval only. It does not connect to a bank or transfer money.</div>
+<section class="card shadow-sm mb-4">
+    <div class="card-header"><h2 class="h5 mb-0">Create teacher salary record</h2></div>
+    <div class="card-body">
+        <form method="post" class="row g-3 align-items-end">
+            {% csrf_token %}<input type="hidden" name="action" value="create_salary">
+            <div class="col-12 col-md-5"><label class="form-label" for="salary-teacher">Teacher</label><select class="form-select" id="salary-teacher" name="staff_id" required><option value="">Choose teacher</option>{% for teacher in teachers %}<option value="{{ teacher.pk }}">{{ teacher.admin.get_full_name|default:teacher.admin.email }} — {{ teacher.admin.email }}</option>{% endfor %}</select></div>
+            <div class="col-6 col-md-3"><label class="form-label" for="salary-month">Salary month</label><input class="form-control" type="month" id="salary-month" name="pay_period" required></div>
+            <div class="col-6 col-md-2"><label class="form-label" for="salary-amount">Amount (INR)</label><input class="form-control" type="number" id="salary-amount" name="amount" min="0.01" step="0.01" required></div>
+            <div class="col-12 col-md-2"><button class="btn btn-primary w-100" type="submit">Add for approval</button></div>
+        </form>
+    </div>
+</section>
+<section class="card shadow-sm">
+    <div class="card-header"><h2 class="h5 mb-0">Salary records</h2></div>
+    <div class="card-body">
+        <form method="get" class="row g-2 mb-3">
+            <div class="col-12 col-md-7"><label class="visually-hidden" for="salary-search">Search teacher or month</label><input class="form-control" id="salary-search" type="search" name="q" value="{{ search_query }}" placeholder="Search teacher, email, salary month or reference"></div>
+            <div class="col-8 col-md-3"><label class="visually-hidden" for="salary-status">Status</label><select class="form-select" id="salary-status" name="status">{% for value,label in status_choices %}<option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="col-4 col-md-2 d-flex gap-2"><button class="btn btn-primary flex-fill" type="submit">Search</button><a class="btn btn-outline-secondary" href="{% url 'admin_salary_payments' %}">Clear</a></div>
+        </form>
+        <div class="table-responsive"><table class="table table-hover align-middle"><thead><tr><th>Teacher</th><th>Month</th><th>Amount</th><th>Demo account</th><th>Status</th><th>Department action / receipt</th></tr></thead><tbody>
+            {% for item in payments %}<tr>
+                <td>{{ item.staff.admin.get_full_name|default:item.staff.admin.email }}<br><small class="text-muted">{{ item.staff.admin.email }}</small></td>
+                <td>{{ item.pay_period }}</td><td>₹{{ item.amount|floatformat:2 }}</td><td>{{ item.account_number }}<br><small class="text-muted">Demo only</small></td>
+                <td>{{ item.get_status_display }}{% if item.payment_reference %}<br><small>{{ item.payment_reference }}</small>{% endif %}</td>
+                <td>{% if item.status == 'pending' %}<form method="post" class="d-flex flex-wrap gap-1">{% csrf_token %}<input type="hidden" name="salary_id" value="{{ item.pk }}"><button class="btn btn-success btn-sm" name="action" value="approve_salary">Approve demo payout</button><button class="btn btn-outline-danger btn-sm" name="action" value="reject_salary">Reject</button></form>{% elif item.status == 'paid' %}<a class="btn btn-sm btn-outline-primary" href="{% url 'salary_payment_receipt' item.pk %}">Download receipt</a><a class="btn btn-sm btn-outline-secondary mt-1" target="_blank" href="{% url 'salary_payment_receipt' item.pk %}?print=1">Print receipt</a>{% else %}—{% endif %}</td>
+            </tr>{% empty %}<tr><td colspan="6" class="text-center text-muted py-4">No salary records match this filter.</td></tr>{% endfor %}
+        </tbody></table></div>
+    </div>
+</section>
+{% endblock %}

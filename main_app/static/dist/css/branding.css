@@ -1,0 +1,81 @@
+.university-wordmark,
+.erpnext-navbar .navbar-brand,
+.brand-link .brand-text,
+.brand-text,
+.login-title,
+.login-logo a,
+.login-logo h1,
+.footer-brand,
+.main-footer strong {
+    font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+}
+
+.erpnext-navbar .navbar-brand,
+.brand-link .brand-text,
+.brand-text {
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.login-title,
+.university-wordmark {
+    letter-spacing: -0.035em;
+}
+
+.portal-maintenance-page {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: radial-gradient(circle at top left, #e9f1ff, #f8faff 52%, #edf2fb);
+    color: #1e2f4c;
+}
+
+.portal-maintenance-card {
+    width: min(100%, 560px);
+    padding: clamp(28px, 6vw, 52px);
+    border: 1px solid rgba(41, 76, 142, 0.12);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 24px 70px rgba(25, 55, 105, 0.14);
+    text-align: center;
+}
+
+.portal-maintenance-crest {
+    width: 112px;
+    height: 112px;
+    object-fit: contain;
+    margin-bottom: 14px;
+}
+
+.portal-maintenance-kicker {
+    margin: 0 0 4px;
+    color: #61779b;
+    font-size: 0.9rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.portal-maintenance-card h1 {
+    margin: 0 0 24px;
+    color: #244b8f;
+    font-size: clamp(1.65rem, 5vw, 2.15rem);
+}
+
+.portal-maintenance-card h2 {
+    margin-bottom: 10px;
+    font-size: 1.35rem;
+}
+
+.portal-maintenance-card p:not(.portal-maintenance-kicker) {
+    margin: 0 auto 24px;
+    max-width: 42ch;
+    color: #66758e;
+    line-height: 1.65;
+}
+
+@media (max-width: 480px) {
+    .portal-maintenance-card { border-radius: 18px; }
+    .portal-maintenance-crest { width: 92px; height: 92px; }
+}

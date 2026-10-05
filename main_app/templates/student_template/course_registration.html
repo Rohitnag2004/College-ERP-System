@@ -1,0 +1,50 @@
+{% extends 'main_app/base.html' %}
+
+{% block page_title %}Course Registration{% endblock %}
+{% block content %}
+<section class="card shadow-sm mb-4">
+    <div class="card-header"><h2 class="h5 mb-0">Available courses</h2></div>
+    <div class="card-body">
+        <div class="alert alert-info">Course applications are approved automatically. Select a session that matches the course duration; lateral-entry students use the same full-program session.</div>
+        
+        <div class="mb-3"><label for="available-course-search" class="form-label">Search courses and subjects</label><input id="available-course-search" class="form-control" type="search" placeholder="Search by course, subject name, or subject code"></div>
+        <div class="table-responsive"><table class="table align-middle">
+            <thead><tr><th>Course</th><th>Degree / duration</th><th>Total fee</th><th>Curriculum</th><th>Apply</th></tr></thead>
+            <tbody>{% for course in courses %}<tr class="available-course-row">
+                <td class="fw-semibold">{{ course.name }}{% if course.syllabus_year %}<br><small class="text-muted">Syllabus {{ course.syllabus_year }}</small>{% endif %}</td><td>{{ course.degree_level|default:"—" }} · {{ course.duration|default:"—" }}<br><small>{{ course.total_semesters }} semesters</small></td>
+                <td>{% if course.total_fee %}₹{{ course.total_fee|floatformat:0 }}{% else %}Contact administration{% endif %}</td>
+                <td>{% if course.semesters.all %}<details class="mt-2"><summary>View subjects by semester</summary>{% for semester in course.semesters.all %}<div class="mt-2"><strong>{{ semester.name }}</strong> · ₹{{ semester.fee_estimate|floatformat:0 }}<ol class="mb-1">{% for subject in semester.subjects.all %}<li>{% if subject.code %}<span class="text-muted">{{ subject.code }}</span> — {% endif %}{{ subject.name }}{% if subject.subject_type %} <small class="text-muted">({{ subject.subject_type }})</small>{% endif %}</li>{% empty %}<li class="text-muted">No subjects listed.</li>{% endfor %}</ol></div>{% endfor %}</details>{% endif %}{% if course.lateral_entry_applicable %}<div class="small mt-2">Lateral entry: {{ course.lateral_entry_admission_year }}, starts {{ course.lateral_entry_semester|default:"—" }}{% if course.lateral_entry_total_fee %} · ₹{{ course.lateral_entry_total_fee|floatformat:0 }}{% else %} · fee not supplied{% endif %}</div>{% endif %}</td>
+                <td class="text-end">{% if has_approved_course %}{% if enrolled_course_id == course.pk %}<span class="badge bg-success">Enrolled</span>{% else %}<span class="text-muted small">One course per student</span>{% endif %}{% else %}<form method="post" class="d-flex flex-wrap justify-content-end gap-2 course-enroll-form" data-regular-duration="{{ course.duration_years|default:'' }}" data-lateral-duration="{{ course.lateral_duration_years|default:'' }}">{% csrf_token %}<input type="hidden" name="course_id" value="{{ course.pk }}"><select name="admission_type" class="form-select form-select-sm entry-type-select" aria-label="Entry type"><option value="regular">Regular entry</option>{% if course.lateral_entry_applicable %}<option value="lateral">Lateral entry · from semester {{ course.lateral_entry_semester }}</option>{% endif %}</select><select name="session_id" class="form-select form-select-sm session-select" aria-label="Academic session" required><option value="">Choose matching session</option>{% for session in sessions %}<option value="{{ session.pk }}" data-duration="{{ session.duration_years }}" {% if student.session_id == session.pk %}selected{% endif %}>{{ session }}</option>{% endfor %}</select><button class="btn btn-primary btn-sm" type="submit">Apply &amp; enroll</button></form>{% endif %}</td>
+            </tr>{% empty %}<tr><td colspan="5" class="text-center text-muted py-4">No courses are currently open for registration.</td></tr>{% endfor %}</tbody>
+        </table></div>
+    </div>
+</section>
+<section class="card shadow-sm">
+    <div class="card-header"><h2 class="h5 mb-0">My registration history</h2></div>
+    <div class="card-body"><div class="table-responsive"><table class="table align-middle">
+        <thead><tr><th>Course</th><th>Session</th><th>Submitted</th><th>Status</th><th>Admin note</th></tr></thead>
+        <tbody>{% for item in registrations %}<tr><td>{{ item.course.name }}</td><td>{{ item.session|default:"—" }}</td><td>{{ item.submitted_at|date:"M j, Y" }}</td><td><span class="badge {% if item.status == 'approved' %}bg-success{% elif item.status == 'rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %}">{{ item.get_status_display }}</span></td><td>{{ item.admin_note|default:"—" }}</td></tr>{% empty %}<tr><td colspan="5" class="text-center text-muted py-4">You have not submitted a course registration yet.</td></tr>{% endfor %}</tbody>
+    </table></div></div>
+</section>
+{% endblock %}
+{% block custom_js %}<script>
+document.getElementById('available-course-search').addEventListener('input', function () {
+    var term = this.value.trim().toLowerCase();
+    document.querySelectorAll('.available-course-row').forEach(function (row) {
+        row.hidden = !row.textContent.toLowerCase().includes(term);
+    });
+});
+document.querySelectorAll('.course-enroll-form').forEach(function(form) {
+    var entry = form.querySelector('.entry-type-select');
+    var session = form.querySelector('.session-select');
+    function filterSessions() {
+        var duration = entry.value === 'lateral' ? form.dataset.lateralDuration : form.dataset.regularDuration;
+        Array.from(session.options).forEach(function(option) {
+            option.hidden = !!option.value && !!duration && option.dataset.duration !== duration;
+        });
+        if (session.selectedOptions.length && session.selectedOptions[0].hidden) session.value = '';
+    }
+    entry.addEventListener('change', filterSessions);
+    filterSessions();
+});
+</script>{% endblock custom_js %}

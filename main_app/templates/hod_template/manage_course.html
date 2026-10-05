@@ -1,0 +1,63 @@
+{% extends 'main_app/base.html' %}
+{% load static %}
+{% block page_title %}{{page_title}}{% endblock page_title %}
+
+{% block content %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">{{page_title}}</h3>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <div class="mb-3"><label for="course-search" class="form-label">Search courses</label><input id="course-search" class="form-control" type="search" placeholder="Type a course name"></div>
+                        <table id="example2" class="table table-bordered table-hover">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Course</th>
+                                    <th>Degree / duration</th>
+                                    <th>Total semesters</th>
+                                    <th>Total tuition (INR)</th>
+                                    <th>Lateral entry</th>
+                                    <th>Active</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for course in courses %}
+                                <tr class="course-search-row">
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{course.name}}</td>
+                                    <td>{{ course.degree_level|default:"—" }} · {{ course.duration|default:"—" }}</td>
+                                    <td>{{ course.total_semesters }}</td>
+                                    <td>{% if course.total_fee %}₹{{ course.total_fee|floatformat:0 }}{% else %}—{% endif %}</td>
+                                    <td>{% if course.lateral_entry_applicable %}Yes · Semester {{ course.lateral_entry_semester }}{% if course.lateral_entry_total_fee %}<br>₹{{ course.lateral_entry_total_fee|floatformat:0 }}{% else %}<br>Fee not supplied{% endif %}{% else %}No{% endif %}</td>
+                                    <td>{{ course.is_active|yesno:"Yes,No" }}</td>
+                                    <td>
+                                        <a href="{% url 'edit_course' course.id %}" class="btn btn-info">Edit</a> -
+                                        <a href="{% url 'delete_course' course.id %}" onclick="return confirm('Are you sure you want to delete this course ?')" class="btn btn-danger">Delete</a> 
+                                    </td>
+                                </tr>
+                                {% empty %}<tr><td colspan="8" class="text-center text-muted">No courses available.</td>{% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+{% block custom_js %}<script>
+document.getElementById('course-search').addEventListener('input', function () {
+    var term = this.value.trim().toLowerCase();
+    document.querySelectorAll('.course-search-row').forEach(function (row) {
+        row.hidden = !row.textContent.toLowerCase().includes(term);
+    });
+});
+</script>{% endblock custom_js %}

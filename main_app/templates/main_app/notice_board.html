@@ -1,0 +1,10 @@
+{% extends 'main_app/base.html' %}
+
+{% block page_title %}Notice Board{% endblock %}
+{% block content %}
+<div class="row g-3">{% for notice in notices %}<div class="col-12"><article class="card shadow-sm"><div class="card-body">
+    <div class="d-flex justify-content-between flex-wrap gap-2"><h2 class="h5 mb-1">{{ notice.title }}</h2><span class="badge bg-primary">{{ notice.get_audience_display }}</span></div>
+    <p class="text-muted small mb-3">{{ notice.created_at|date:"M j, Y · H:i" }}{% if notice.created_by %} · Posted by {{ notice.created_by.get_full_name|default:notice.created_by.email }}{% endif %}</p>
+    <div>{{ notice.message|linebreaksbr }}</div>
+</div></article></div>{% empty %}<div class="col-12"><div class="card"><div class="card-body text-center text-muted py-5">There are no published notices right now.</div></div></div>{% endfor %}</div>
+{% endblock %}
