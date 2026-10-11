@@ -1,3 +1,36 @@
+<!-- Animated Project Header -->
+
+<p align="center">
+  <img
+    src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=28&pause=1000&color=58A6FF&center=true&vCenter=true&width=750&lines=Velocity+Tech+University;College+ERP+%7C+Django+%7C+PostgreSQL;Smarter+Academic+Management"
+    alt="Animated Velocity Tech University heading"
+  />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Django-Powered-092E20?style=for-the-badge&logo=django&logoColor=white" alt="Django" />
+  <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/Database-Neon_PostgreSQL-00E599?style=for-the-badge&logo=postgresql&logoColor=black" alt="Neon PostgreSQL" />
+</p>
+
+<p align="center">
+  <a href="https://github.com/Rohitnag2004/College-ERP-System">
+    <img src="https://img.shields.io/badge/Explore-Repository-238636?style=for-the-badge&logo=github&logoColor=white" alt="Explore Repository" />
+  </a>
+</p>
+
+<p align="center">
+  <i>One platform. Three roles. Smarter academic workflows.</i>
+</p>
+
+---
+
+### 🎓 About the Project
+
+Velocity Tech University is a Django-based College ERP designed to bring student services, faculty workflows, and academic administration together in one centralized platform.
+
+Built with Python, Django, Neon PostgreSQL, and S3-compatible object storage.
+
 # 🎓 Velocity Tech University
 ### College ERP & Academic Management System
 
