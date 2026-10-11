@@ -1,417 +1,242 @@
-<!-- ========================================================= -->
-<!--           VELOCITY TECH UNIVERSITY README                -->
-<!-- ========================================================= -->
-
 <div align="center">
 
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=32&pause=1000&color=58A6FF&center=true&vCenter=true&width=850&height=80&lines=VELOCITY+TECH+UNIVERSITY;College+ERP+Management+System;Powered+by+Django+%26+PostgreSQL" alt="Velocity Tech University animated title" />
+# Velocity Tech University
 
-<p>
-  <b>A Centralized Platform for Smarter Academic Management</b>
-</p>
+### College ERP & Academic Management System
 
-<p>
-  Managing students, faculty, academic records, and administrative workflows through one integrated platform.
-</p>
+An online portal for students, teachers, and administrators to manage everyday academic activities in one place.
 
-<p>
-  <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
-  <img src="https://img.shields.io/badge/Django-5.x-092E20?style=for-the-badge&logo=django&logoColor=white" alt="Django" />
-  <img src="https://img.shields.io/badge/PostgreSQL-Neon-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
-  <img src="https://img.shields.io/badge/Storage-S3_Compatible-orange?style=for-the-badge&logo=amazons3&logoColor=white" alt="Object Storage" />
-</p>
+[![Live website](https://img.shields.io/badge/Live%20Website-Open-2ea44f?style=for-the-badge)](https://velocity-tech-university.onrender.com)
+[![Django CI](https://github.com/Rohitnag2004/College-ERP-System/actions/workflows/django.yml/badge.svg)](https://github.com/Rohitnag2004/College-ERP-System/actions/workflows/django.yml)
+[![Python](https://img.shields.io/badge/Python-3.12%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Django](https://img.shields.io/badge/Django-5.2-092E20?logo=django&logoColor=white)](https://www.djangoproject.com/)
+[![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 
-<p>
-  <a href="https://github.com/Rohitnag2004/College-ERP-System">
-    <img src="https://img.shields.io/badge/Explore-Repository-238636?style=for-the-badge&logo=github&logoColor=white" alt="Explore repository" />
-  </a>
-</p>
+[Open the live portal](https://velocity-tech-university.onrender.com) · [View the source code](https://github.com/Rohitnag2004/College-ERP-System)
 
 </div>
 
 ---
 
-## 📑 Table of Contents
+## Contents
 
-- [Overview](#-overview)
-- [Key Features](#-key-features)
-- [Technology Stack](#-technology-stack)
-- [System Architecture](#-system-architecture)
-- [Getting Started](#-getting-started)
-- [Environment Configuration](#-environment-configuration)
-- [Deployment](#-deployment)
-- [Security](#-security)
-- [Project Documentation](#-project-documentation)
-- [Contributing](#-contributing)
-- [License](#-license)
+- [About](#about)
+- [Live site and dashboards](#live-site-and-dashboards)
+- [Screenshots](#screenshots)
+- [Features](#features)
+- [Architecture](#architecture)
+- [Technology](#technology)
+- [Run locally](#run-locally)
+- [Environment configuration](#environment-configuration)
+- [Deployment](#deployment)
+- [Security and demo limitations](#security-and-demo-limitations)
+- [Project documentation](#project-documentation)
+- [Contributing](#contributing)
+- [License](#license)
 
----
+## About
 
-## 🌐 Overview
+Velocity Tech University College ERP is a Django web application for organizing academic and administrative work. It provides different dashboards and permissions for administrators, teachers, and students.
 
-**Velocity Tech University** is a Django-based College Enterprise Resource Planning (ERP) system built to organize academic and administrative operations in one centralized application.
+The live application is hosted on Render. PostgreSQL data is stored in Neon, and uploaded media uses S3-compatible object storage.
 
-The platform supports three primary roles:
+## Live site and dashboards
 
-- 🛡️ **Administrator** — manages users, teacher approvals, academic operations, and system controls.
-- 👨‍🏫 **Teacher** — accesses teacher-oriented academic and classroom workflows.
-- 🎓 **Student** — accesses student services and academic information.
+Sign in with an account for the matching role. These links open protected dashboards; they do not provide or create an account.
 
-The application uses **Neon PostgreSQL** for application records and **S3-compatible object storage** for production uploads such as profile photos and learning resources.
+| Role | Dashboard |
+|---|---|
+| Administrator | [Open administrator dashboard](https://velocity-tech-university.onrender.com/admin/home/) |
+| Teacher | [Open teacher dashboard](https://velocity-tech-university.onrender.com/staff/home/) |
+| Student | [Open student dashboard](https://velocity-tech-university.onrender.com/student/home/) |
 
-### 🎯 Project Goals
+[Sign in](https://velocity-tech-university.onrender.com/) · [Student registration](https://velocity-tech-university.onrender.com/register/student/) · [Teacher registration](https://velocity-tech-university.onrender.com/register/teacher/)
 
-- Simplify routine academic administration.
-- Centralize student and faculty workflows.
-- Organize academic records and learning resources.
-- Support cloud-based database and file storage.
-- Provide a responsive and accessible web interface.
+Teacher accounts need administrator approval before signing in. Administrator accounts are created by an existing administrator.
 
----
+## Screenshots
 
-## ✨ Key Features
+### Administrator dashboard
 
-<table>
-<tr>
-<td width="50%" valign="top">
+![Administrator dashboard preview](Showcase/Screenshot_03.png)
 
-### 🔐 Authentication
-- Role-aware sign-in
-- Student registration
-- Teacher registration
-- Administrative teacher approval
+### Teacher dashboard
 
-</td>
-<td width="50%" valign="top">
+![Teacher dashboard preview](Showcase/Screenshot_01.png)
 
-### 🛡️ Administration
-- User management
-- Academic administration
-- Assignment management
-- Independent student and teacher maintenance controls
+### Student dashboard
 
-</td>
-</tr>
-<tr>
-<td width="50%" valign="top">
+![Student dashboard preview](Showcase/Screenshot_02.png)
 
-### 📚 Academic Management
-- Course applications
-- Attendance records
-- Examination results
-- Assignments and notices
+These images are interface previews from the repository's `Showcase` folder. They may show sample data.
 
-</td>
-<td width="50%" valign="top">
+## Features
 
-### 💳 Institutional Workflows
-- Fee records and demo fee workflows
-- Teacher salary demonstration workflows
-- Learning resources
-- Academic information management
+- **Role-based accounts:** separate access for administrators, teachers, and students.
+- **Academic administration:** manage students, staff, courses, subjects, sessions, and teacher assignments.
+- **Attendance and results:** take and review attendance, manage results, and share grade cards.
+- **Course registration:** students can request courses and administrators can review requests.
+- **Learning resources and library:** share course materials and manage books.
+- **Notices and communication:** publish notices, notifications, feedback, and leave requests.
+- **Fees and salary records:** view and manage institutional records. Payment and salary flows are demonstration workflows and do not transfer money.
+- **Cloud-ready uploads:** store profile photos and learning materials in S3-compatible object storage.
 
-</td>
-</tr>
-<tr>
-<td width="50%" valign="top">
-
-### 🖥️ User Experience
-- Responsive dashboards
-- Search and pagination
-- Role-specific interfaces
-- Five-minute idle session expiry
-
-</td>
-<td width="50%" valign="top">
-
-### ☁️ Cloud Infrastructure
-- Neon PostgreSQL
-- S3-compatible object storage
-- WhiteNoise static file serving
-- Gunicorn production server
-
-</td>
-</tr>
-</table>
-
-> **Disclaimer:** Fee and teacher salary workflows are demonstrational. The application does not transfer money.
-
----
-
-## 🧰 Technology Stack
-
-<div align="center">
-
-| Technology | Purpose |
-|:---|:---|
-| 🐍 Python | Core programming language |
-| 🎯 Django | Web framework and application logic |
-| 🐘 PostgreSQL | Relational database |
-| ☁️ Neon | Hosted PostgreSQL and object storage |
-| 📦 S3-compatible storage | Uploaded media and learning resources |
-| 🚀 Gunicorn | Production WSGI server |
-| 🧱 WhiteNoise | Static asset serving |
-| 🔧 Git & GitHub | Version control and source code hosting |
-
-</div>
-
----
-
-## 🏗️ System Architecture
+## Architecture
 
 ```mermaid
-flowchart TD
-    A["🌐 Web Browser"] --> B["Django College ERP"]
-    B --> C["🔐 Authentication & Role Management"]
-    B --> D["📚 Academic Workflows"]
-    B --> E["🛡️ Administrative Workflows"]
-    C --> F[("Neon PostgreSQL")]
-    D --> F
-    E --> F
-    B --> G[("S3-Compatible Object Storage")]
-    G --> H["Profile Photos & Uploaded Resources"]
+flowchart LR
+    Browser[Web browser] --> App[Django ERP]
+    App --> Auth[Role-based authentication]
+    App --> Academic[Academic workflows]
+    App --> Admin[Administrative workflows]
+    Auth --> DB[(Neon PostgreSQL)]
+    Academic --> DB
+    Admin --> DB
+    App --> Media[(S3-compatible object storage)]
+    App --> Static[WhiteNoise static assets]
 ```
 
-### ☁️ Storage Design
+PostgreSQL stores application records. Private object storage holds uploaded media such as profile photos and learning resources. Static site assets are collected at build time and served by WhiteNoise.
 
-| Component | Responsibility |
-|:---|:---|
-| Django | Application logic, authentication, and workflows |
-| Neon PostgreSQL | Application records and relational data |
-| Object storage | Production media uploads |
-| WhiteNoise | Static assets collected during deployment |
-| Gunicorn | Serves the Django application in production |
+## Technology
 
-**Important:** Production uploads are stored in remote object storage, not on a user's computer or the web host's temporary local filesystem.
+- Python 3.12+
+- Django 5.2
+- PostgreSQL with Neon
+- Neon Object Storage or another S3-compatible storage provider
+- Gunicorn and WhiteNoise
+- GitHub Actions for automated checks
 
----
+## Run locally
 
-## 🚀 Getting Started
+### Requirements
 
-Follow the steps below to run the project on your local computer.
+- Python 3.12 or later
+- Git
+- A PostgreSQL database
+- An S3-compatible bucket for persistent uploaded files
 
-### 📋 Prerequisites
-
-Before you begin, make sure you have:
-
-- Python 3.10 or later
-- Git installed
-- Access to a PostgreSQL database
-- The required environment variables
-- An S3-compatible bucket if remote media uploads are needed
-
-### 1️⃣ Clone the Repository
+### Setup
 
 ```bash
 git clone https://github.com/Rohitnag2004/College-ERP-System.git
 cd College-ERP-System
-```
-
-### 2️⃣ Create a Virtual Environment
-
-**Windows PowerShell**
-
-```powershell
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
 ```
 
-### 3️⃣ Install Dependencies
-
-```bash
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-```
-
-### 4️⃣ Create Your Environment File
+Activate the environment and install packages:
 
 ```powershell
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
 Copy-Item .env.example .env
 ```
 
-Open `.env` and configure the values for your development environment.
+On macOS or Linux, activate and copy the environment template with:
 
-### 5️⃣ Apply Database Migrations
+```bash
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+cp .env.example .env
+```
+
+Edit `.env` with your own development values. Never copy production credentials into the repository. For a local-only setup without remote uploads, use `DJANGO_DEBUG=true` and `USE_REMOTE_MEDIA=false`. Then run:
 
 ```bash
 python manage.py migrate
-```
-
-### 6️⃣ Start the Development Server
-
-```bash
 python manage.py runserver
 ```
 
-Open the application:
+Visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/). Create accounts through the supported registration flow; the repository does not include public demo passwords.
 
-**http://127.0.0.1:8000/**
+## Environment configuration
 
-> The repository does not include default account passwords or production secrets. Configure accounts using the application's supported registration and administrative workflows.
+Copy `.env.example` to `.env` and replace the placeholders for your own local setup. Production values belong in the hosting provider's environment-variable settings, never in Git.
 
----
-
-## ⚙️ Environment Configuration
-
-The following variables are used by the application. Set only the variables required for your chosen configuration.
-
-| Variable | Description |
-|:---|:---|
-| `DJANGO_SECRET_KEY` | Django secret key |
-| `DJANGO_DEBUG` | Debug mode setting |
-| `DJANGO_ALLOWED_HOSTS` | Allowed hostnames |
+| Variable | Purpose |
+|---|---|
+| `DJANGO_SECRET_KEY` | Secret key used by Django |
+| `DJANGO_DEBUG` | Turns debug mode on or off |
+| `DJANGO_ALLOWED_HOSTS` | Comma-separated allowed hostnames |
 | `DATABASE_URL` | PostgreSQL connection URL |
-| `CSRF_TRUSTED_ORIGINS` | Trusted application origins |
-| `USE_REMOTE_MEDIA` | Enables remote media storage |
-| `AWS_STORAGE_BUCKET_NAME` | Object-storage bucket |
-| `AWS_ACCESS_KEY_ID` | Object-storage access key |
-| `AWS_SECRET_ACCESS_KEY` | Object-storage secret key |
-| `AWS_ENDPOINT_URL_S3` | Optional S3-compatible endpoint |
+| `CSRF_TRUSTED_ORIGINS` | Trusted HTTPS origins in production |
+| `USE_REMOTE_MEDIA` | Enables S3-compatible upload storage |
+| `AWS_STORAGE_BUCKET_NAME` | Object-storage bucket name |
+| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | Object-storage credentials |
+| `AWS_ENDPOINT_URL_S3` | S3-compatible provider endpoint |
 | `AWS_REGION` | Object-storage region |
-| `EMAIL_HOST` | SMTP server hostname |
-| `EMAIL_PORT` | SMTP server port |
-| `EMAIL_HOST_USER` | SMTP account username |
-| `EMAIL_HOST_PASSWORD` | SMTP credential or app password |
-| `EMAIL_USE_TLS` | Enables SMTP TLS |
-| `DEFAULT_FROM_EMAIL` | Default sender address |
+| `AWS_S3_ADDRESSING_STYLE` | Use `path` for Neon Object Storage |
+| `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD` | SMTP settings for password-reset email delivery |
+| `EMAIL_USE_TLS`, `DEFAULT_FROM_EMAIL` | SMTP security and sender address |
 
-### 🔒 Configuration Rules
+For disposable local development only, set `DJANGO_DEBUG=true` and `USE_REMOTE_MEDIA=false` to store uploads on your computer. Production requires a configured database and private remote media storage.
 
-- Use a fresh secret key for your own installation.
-- Set `DJANGO_DEBUG=true` only for local development.
-- Use a valid database connection URL.
-- Configure remote storage credentials when `USE_REMOTE_MEDIA=true`.
-- Keep `.env` out of version control.
-- Never publish database passwords, secret keys, or storage credentials.
+## Deployment
 
-The `.env.example` file should contain placeholders, never real credentials.
+The production service uses environment variables for Django configuration, the Neon database, and object-storage credentials. Never commit `.env` or share secret values.
 
----
-
-## ☁️ Deployment
-
-The application is designed for deployment on a Django-compatible hosting service, with Neon PostgreSQL and private S3-compatible object storage.
-
-### Production Checklist
-
-- [ ] Configure `DJANGO_SECRET_KEY`.
-- [ ] Set `DJANGO_DEBUG=false`.
-- [ ] Set `DJANGO_ALLOWED_HOSTS` to the deployed hostname.
-- [ ] Configure `CSRF_TRUSTED_ORIGINS` for the HTTPS domain.
-- [ ] Set the production `DATABASE_URL`.
-- [ ] Configure the required remote object-storage credentials.
-- [ ] Configure SMTP if password-reset email is required.
-- [ ] Run database migrations.
-- [ ] Collect static files.
-- [ ] Test authentication, dashboards, database access, and file uploads.
-
-### Deployment Commands
+Typical Render commands:
 
 ```bash
-python manage.py migrate
-python manage.py collectstatic --noinput
+pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate
 ```
 
-The repository's `Procfile` defines the Gunicorn startup command. Use the repository's actual build and start configuration in the hosting dashboard.
-
-> **Before production:** This project's settings require remote media storage when debug mode is disabled. Configure the private storage bucket and required credentials before deploying.
-
-For detailed deployment, cloud storage, migration, and maintenance instructions, read the **[Developer Guide](DEVELOPER_GUIDE.md)**.
-
----
-
-## 🔐 Security
-
-Security is essential for an application that manages academic records.
-
-- Never commit `.env` files or production credentials.
-- Use HTTPS and secure production settings.
-- Keep uploaded files in private object storage.
-- Avoid publishing student records, personal information, or passwords in screenshots.
-- Review changes before deploying them to production.
-- Give database credentials only to trusted environments.
-
-For security-related disclosures, consult `SECURITY.md` if the repository provides one.
-
----
-
-## 📂 Project Documentation
-
-| Resource | Description |
-|:---|:---|
-| [README](README.md) | Project overview and setup guide |
-| [Developer Guide](DEVELOPER_GUIDE.md) | Architecture, deployment, storage, and maintenance |
-| [Project Report](docs/College-ERP-Project-Report-Redacted.pdf) | Project report |
-| [License](LICENSE) | Applicable license terms |
-
----
-
-## 🖼️ Application Screenshots
-
-Screenshots of the actual application can be added here to showcase the interface.
-
-Recommended screenshots:
-
-- Administrator Dashboard
-- Student Dashboard
-- Teacher Dashboard
-- Course and Attendance Management
-- Results and Fee Management
-
-Store verified screenshots in `docs/screenshots/` and embed them using relative paths, for example:
-
-```markdown
-![Administrator Dashboard](docs/screenshots/admin-dashboard.png)
+```bash
+gunicorn college_management_system.wsgi:application --bind 0.0.0.0:$PORT
 ```
 
-Only add screenshots that exist in the repository.
+See [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) for storage, environment, deployment, and maintenance details. Render Free services may spin down when idle, so the first request after inactivity can take longer to respond.
 
----
+### Production checklist
 
-## 🛣️ Future Improvements
+- Set `DJANGO_DEBUG=false` and a new secret key.
+- Set the deployed domain in `DJANGO_ALLOWED_HOSTS` and the HTTPS origin in `CSRF_TRUSTED_ORIGINS`.
+- Configure the production PostgreSQL URL and private object-storage credentials.
+- Run database migrations and collect static files.
+- Smoke-test role sign-in, dashboard access, database connectivity, and file uploads.
 
-Potential areas for future development include:
+## Security and demo limitations
 
-- Automated email notifications and password recovery
-- Expanded academic analytics and reports
-- Additional automated tests
-- Continuous integration and deployment
-- More comprehensive user and deployment documentation
+- Do not commit `.env`, database URLs, secret keys, or object-storage credentials.
+- Do not publish real student records, personal data, or account passwords in screenshots.
+- Fee and teacher-salary workflows are demonstrations; they do not transfer money.
+- Password-reset email delivery needs a configured email provider. It is not ready until the production email settings are configured.
 
-These are possible enhancements, not claims that the features are already implemented.
+## Project documentation
 
----
+| Document | What it covers |
+|---|---|
+| [Developer Guide](DEVELOPER_GUIDE.md) | Deployment, cloud storage, and maintenance |
+| [Project report](docs/College-ERP-Project-Report-Redacted.pdf) | Redacted project report |
+| [Contributing guide](CONTRIBUTING.md) | How to contribute |
+| [Security policy](SECURITY.md) | Security reporting guidance |
+| [License](LICENSE) | Project license terms |
 
-## 🤝 Contributing
+## Project files
 
-Suggestions, bug reports, and improvements are welcome.
+| Path | Description |
+|---|---|
+| `college_management_system/` | Django project settings and URL configuration |
+| `main_app/` | Application code, templates, and static assets |
+| `Showcase/` | Dashboard preview images |
+| `docs/` | Project report |
+| `DEVELOPER_GUIDE.md` | Deployment and maintenance guide |
 
-1. Fork this repository.
-2. Create a feature branch.
-3. Make your changes.
-4. Test the changes locally.
-5. Submit a pull request with a clear description.
+## Contributing
 
-Please review the repository's contribution guidelines before submitting changes.
+Bug reports and improvements are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md), create a focused branch, and include a clear description of your change.
 
----
+## License
 
-## 📄 License
-
-This project is distributed under the terms described in the [LICENSE](LICENSE) file.
+See [LICENSE](LICENSE) for the terms that apply to this project.
 
 ---
 
 <div align="center">
 
-### 💙 Built for Smarter Academic Management
+Built with Django for academic and college administration.
 
-**Velocity Tech University — College ERP System**
-
-<a href="https://github.com/Rohitnag2004/College-ERP-System">
-  <img src="https://img.shields.io/badge/GitHub-Explore%20Project-181717?style=for-the-badge&logo=github" alt="Explore on GitHub" />
-</a>
-
-<p><sub>Powered by Python · Django · PostgreSQL</sub></p>
+[Live website](https://velocity-tech-university.onrender.com) · [GitHub repository](https://github.com/Rohitnag2004/College-ERP-System)
 
 </div>
