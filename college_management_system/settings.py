@@ -92,15 +92,13 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", BASE_DIR / "media"))
+PRIVATE_RESOURCES_ROOT = Path(
+    os.environ.get("PRIVATE_RESOURCES_ROOT", BASE_DIR / "private_resources")
+)
 USE_REMOTE_MEDIA = os.environ.get(
     "USE_REMOTE_MEDIA", "false" if DEBUG else "true"
 ).lower() in {"1", "true", "yes"}
-if not DEBUG and not USE_REMOTE_MEDIA:
-    raise ImproperlyConfigured(
-        "Production requires remote upload storage. Set USE_REMOTE_MEDIA=true; "
-        "local media storage is only available in DEBUG development."
-    )
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
@@ -172,6 +170,9 @@ CSRF_COOKIE_SAMESITE = "Lax"
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
 if not DEBUG:
+    # Render terminates TLS at its proxy and forwards the original scheme.
+    # Trust that header so Django does not redirect HTTPS requests in a loop.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = os.environ.get("SECURE_SSL_REDIRECT", "true").lower() in {"1", "true", "yes"}
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True

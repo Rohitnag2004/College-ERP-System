@@ -22,7 +22,7 @@ class PrivateResourceStorage(FileSystemStorage):
             super().__init__(location=remote_location, base_url=base_url or "")
             return
         super().__init__(
-            location=location or settings.BASE_DIR / "private_resources",
+            location=location or settings.PRIVATE_RESOURCES_ROOT,
             # Deliberately not MEDIA_URL: these files are only served by the
             # authenticated, role-checked download view.
             base_url=base_url or "/_private-resources-not-served/",
