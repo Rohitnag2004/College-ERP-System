@@ -42,5 +42,7 @@ jobs:
           pip install -r requirements.txt
       - name: Check project configuration
         run: python manage.py check
+      - name: Collect static files
+        run: python manage.py collectstatic --noinput
       - name: Run Django tests
         run: python manage.py test
